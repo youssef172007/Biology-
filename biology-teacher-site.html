@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elena Marsh — Biology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#F5F0E3;
+    --card:#FFFDF8;
+    --ink:#2B3626;
+    --bark:#4A3728;
+    --moss:#6F7F52;
+    --gold:#B4813F;
+    --rust:#A2543A;
+    --line:#DDD5C0;
+    --sidebar:#2B3626;
+    --sidebar-ink:#EDE8D9;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Fraunces',serif;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  .app{min-height:100vh;}
+  .hidden{display:none !important;}
+
+  /* ---------- PUBLIC PAGE ---------- */
+  .public{max-width:920px;margin:0 auto;padding:0 24px 80px;}
+  .public-nav{display:flex;justify-content:space-between;align-items:center;padding:28px 0;}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;letter-spacing:0.01em;}
+  .brand span{color:var(--moss);}
+
+  .hero{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:center;padding:36px 0 56px;border-bottom:1px solid var(--line);}
+  @media(max-width:720px){.hero{grid-template-columns:1fr;}}
+  .hero-photo{width:100%;aspect-ratio:4/5;background:linear-gradient(155deg,#7C8B5E,#3F4E33);border-radius:10px;position:relative;overflow:hidden;}
+  .hero-photo::after{
+    content:"EM";
+    position:absolute;bottom:18px;left:18px;
+    font-family:'Fraunces',serif;font-size:2.4rem;color:#F5F0E3;opacity:0.85;
+  }
+  .hero h1{font-size:2.6rem;line-height:1.05;margin:0 0 14px;font-weight:500;color:var(--bark);}
+  .hero .role{color:var(--moss);font-size:1.05rem;margin-bottom:18px;}
+  .hero p.lede{font-size:1.08rem;line-height:1.6;max-width:46ch;color:var(--ink);}
+
+  .ledger{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0;}
+  @media(max-width:640px){.ledger{grid-template-columns:repeat(2,1fr);}}
+  .ledger-item{padding:22px 18px;border-right:1px solid var(--line);}
+  .ledger-item:last-child{border-right:none;}
+  .ledger-num{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--gold);display:block;}
+  .ledger-label{font-size:0.85rem;color:var(--bark);margin-top:4px;}
+
+  .section{padding:48px 0;border-bottom:1px solid var(--line);}
+  .section h2{font-size:1.5rem;font-weight:500;color:var(--bark);margin:0 0 18px;}
+  .section p{line-height:1.7;max-width:62ch;}
+
+  .focus-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 32px;list-style:none;padding:0;margin:0;}
+  @media(max-width:640px){.focus-list{grid-template-columns:1fr;}}
+  .focus-list li{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;}
+  .focus-list li .tag{color:var(--moss);font-size:0.9rem;white-space:nowrap;}
+
+  .achieve{list-style:none;padding:0;margin:0;}
+  .achieve li{padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:18px;}
+  .achieve li .yr{font-family:'Fraunces',serif;color:var(--gold);min-width:56px;}
+
+  .footer-row{display:flex;justify-content:space-between;align-items:center;padding:32px 0 0;font-size:0.9rem;color:var(--bark);}
+  .staff-link{background:none;border:none;color:var(--bark);opacity:0.55;font-size:0.82rem;text-decoration:underline;padding:0;}
+  .staff-link:hover{opacity:1;}
+
+  /* ---------- PASSCODE GATE ---------- */
+  .gate{position:fixed;inset:0;background:var(--sidebar);color:var(--sidebar-ink);display:flex;align-items:center;justify-content:center;z-index:50;}
+  .gate-box{width:100%;max-width:340px;padding:0 24px;text-align:left;}
+  .gate-box h2{color:var(--sidebar-ink);font-size:1.5rem;margin:0 0 6px;}
+  .gate-box p{color:#C9C2AC;font-size:0.92rem;margin:0 0 22px;}
+  .gate input{width:100%;padding:12px 14px;border-radius:6px;border:1px solid #4A5A3C;background:#37432C;color:var(--sidebar-ink);font-size:1rem;margin-bottom:12px;}
+  .gate input:focus{outline:2px solid var(--gold);}
+  .gate-actions{display:flex;gap:10px;}
+  .btn{padding:11px 18px;border-radius:6px;border:none;font-size:0.92rem;font-weight:600;}
+  .btn-primary{background:var(--gold);color:#2B2410;}
+  .btn-ghost{background:transparent;color:#C9C2AC;border:1px solid #4A5A3C;}
+  .gate-error{color:#E0A98C;font-size:0.85rem;margin-top:-4px;margin-bottom:10px;min-height:1em;}
+
+  /* ---------- DASHBOARD ---------- */
+  .dash{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
+  @media(max-width:820px){.dash{grid-template-columns:1fr;}
+    .sidebar{position:sticky;top:0;z-index:10;}
+  }
+  .sidebar{background:var(--sidebar);color:var(--sidebar-ink);padding:22px 18px;display:flex;flex-direction:column;}
+  .sidebar-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;}
+  .sidebar-top h2{margin:0;font-size:1.1rem;color:var(--sidebar-ink);}
+  .exit-link{font-size:0.78rem;color:#B7C09C;background:none;border:none;text-decoration:underline;}
+  .search-input{width:100%;padding:9px 12px;border-radius:6px;border:1px solid #4A5A3C;background:#37432C;color:var(--sidebar-ink);font-size:0.9rem;margin-bottom:10px;}
+  .add-student-btn{width:100%;padding:10px;border-radius:6px;border:1px dashed #6C7A57;background:transparent;color:#D7D2BE;font-size:0.88rem;margin-bottom:14px;}
+  .add-student-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .roster-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;}
+  .roster-row{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:6px;background:none;border:none;color:var(--sidebar-ink);text-align:left;font-size:0.9rem;}
+  .roster-row:hover{background:#37432C;}
+  .roster-row.active{background:#4A5A3C;}
+  .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:600;color:#fff;flex-shrink:0;}
+  .roster-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rate-badge{font-size:0.72rem;padding:2px 6px;border-radius:10px;background:#4A5A3C;color:#D7D2BE;}
+  .rate-badge.low{background:#5A3A2E;color:#EEC2A8;}
+  .sidebar-count{font-size:0.78rem;color:#9AA483;padding:10px 8px 0;}
+
+  .main{padding:30px 34px;overflow-x:hidden;}
+  @media(max-width:600px){.main{padding:20px 16px;}}
+  .main-empty{max-width:520px;margin:60px auto;text-align:center;}
+  .main-empty h2{font-size:1.4rem;color:var(--bark);}
+  .main-empty p{color:#6b6252;line-height:1.6;}
+  .overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+  @media(max-width:600px){.overview-grid{grid-template-columns:1fr;}}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;}
+  .stat-card .num{font-family:'Fraunces',serif;font-size:1.8rem;color:var(--gold);}
+  .stat-card .lbl{font-size:0.85rem;color:var(--bark);margin-top:2px;}
+
+  .student-header{display:flex;align-items:center;gap:16px;margin-bottom:6px;flex-wrap:wrap;}
+  .student-header h1{font-size:1.7rem;margin:0;color:var(--bark);font-weight:500;}
+  .student-sub{color:#8a7f68;font-size:0.9rem;margin-bottom:20px;}
+  .delete-student{margin-left:auto;background:none;border:none;color:var(--rust);font-size:0.82rem;text-decoration:underline;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px;flex-wrap:wrap;}
+  .tab-btn{padding:10px 14px;background:none;border:none;font-size:0.92rem;color:#8a7f68;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .tab-btn.active{color:var(--bark);border-bottom-color:var(--gold);font-weight:600;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;margin-bottom:18px;}
+  .card h3{margin:0 0 14px;font-size:1.05rem;color:var(--bark);font-weight:600;}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.field-grid{grid-template-columns:1fr;}}
+  label{display:block;font-size:0.8rem;color:#6b6252;margin-bottom:4px;}
+  input,select{width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:0.9rem;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--moss);}
+
+  table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+  th{text-align:left;font-weight:600;color:var(--bark);padding:8px 8px;border-bottom:1px solid var(--line);font-size:0.8rem;}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .status-pill{font-size:0.76rem;padding:3px 8px;border-radius:10px;display:inline-block;}
+  .status-present{background:#E4EBD8;color:#3F4E2F;}
+  .status-absent{background:#F2DCD3;color:#7C3A22;}
+  .status-excused{background:#EAE2CF;color:#6B4F1F;}
+  .status-late{background:#EFE6C9;color:#7A5E1A;}
+  .status-paid{background:#E4EBD8;color:#3F4E2F;}
+  .status-pending{background:#EFE6C9;color:#7A5E1A;}
+  .status-overdue{background:#F2DCD3;color:#7C3A22;}
+
+  .inline-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+  .inline-form .f{min-width:120px;flex:1;}
+  .row-actions button{background:none;border:none;color:var(--rust);font-size:0.8rem;text-decoration:underline;}
+  .empty-row{color:#9a8f77;font-style:italic;padding:14px 8px;}
+  .save-note{font-size:0.78rem;color:#8a9a5b;margin-left:8px;}
+</style>
+</head>
+<body>
+
+<div id="app" class="app"></div>
+
+<script>
+/* ===================== STORAGE HELPERS ===================== */
+/* Data lives in Supabase now, so it syncs across every device/browser
+   that opens this site. */
+const SUPABASE_URL = "https://iltbqbmvvyyqodjwuddg.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_YJoFRLnKX6f9zhDoQd7Yiw_pRyuS7Uz";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadJSON(key, fallback){
+  try{
+    const { data, error } = await db.from('kv_store').select('value').eq('key', key).maybeSingle();
+    if(error || !data) return fallback;
+    return data.value;
+  }catch(e){ console.error('storage load failed', e); return fallback; }
+}
+async function saveJSON(key, value){
+  try{
+    const { error } = await db.from('kv_store').upsert({ key, value });
+    if(error){ console.error('storage save failed', error); return false; }
+    return true;
+  }catch(e){ console.error('storage save failed', e); return false; }
+}
+async function deleteKey(key){
+  try{ await db.from('kv_store').delete().eq('key', key); }catch(e){}
+}
+
+/* ===================== STATE ===================== */
+const DASH_PASSCODE = "biology2026"; // change this string to set your own passcode
+let unlocked = localStorage.getItem("dash_unlocked") === "true";
+let view = unlocked ? "dashboard" : "gate"; // gate | dashboard | public
+let students = [];
+let dataCache = {}; // id -> full record
+let activeStudentId = null;
+let activeTab = "overview";
+let search = "";
+
+const AVATAR_COLORS = ["#6F7F52","#B4813F","#A2543A","#4A3728","#7C8B5E","#8A6A3E"];
+function colorFor(name){
+  let h=0; for(const c of name) h = (h*31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[Math.abs(h)];
+}
+function initials(name){
+  return name.split(" ").filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+function emptyRecord(){
+  return { attendance:[], assignments:[], exams:[], payments:[], nextDue:"" };
+}
+
+function attendanceRate(rec){
+  if(!rec || rec.attendance.length===0) return null;
+  const countable = rec.attendance.filter(a=>a.status!=="excused");
+  if(countable.length===0) return 100;
+  const present = countable.filter(a=>a.status==="present").length;
+  return Math.round((present/countable.length)*100);
+}
+
+/* ===================== INIT ===================== */
+async function init(){
+  students = await loadJSON("roster", []);
+  render();
+}
+
+async function ensureStudentData(id){
+  if(!dataCache[id]){
+    dataCache[id] = await loadJSON("student-data:"+id, emptyRecord());
+    render();
+  }
+}
+
+async function persistStudentData(id){
+  await saveJSON("student-data:"+id, dataCache[id]);
+}
+
+/* ===================== RENDER ROOT ===================== */
+function render(){
+  const app = document.getElementById("app");
+  if(view === "public") app.innerHTML = renderPublic();
+  else if(view === "gate") app.innerHTML = renderGate();
+  else app.innerHTML = renderDashboard();
+  bindEvents();
+}
+
+/* ===================== PUBLIC PAGE ===================== */
+function renderPublic(){
+  return `
+  <div class="public">
+    <div class="public-nav">
+      <div class="brand">Elena Marsh <span>· Biology</span></div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-photo"></div>
+      <div>
+        <h1>Biology, taught like a field notebook.</h1>
+        <div class="role">Biology Teacher, AP &amp; General Sciences</div>
+        <p class="lede">Twelve years in the classroom and the field, built on the idea that students remember what they've measured, dissected, or argued about — not just what they've read.</p>
+      </div>
+    </div>
+
+    <div class="ledger">
+      <div class="ledger-item"><span class="ledger-num">12</span><span class="ledger-label">Years teaching</span></div>
+      <div class="ledger-item"><span class="ledger-num">640+</span><span class="ledger-label">Students taught</span></div>
+      <div class="ledger-item"><span class="ledger-num">94%</span><span class="ledger-label">Average pass rate</span></div>
+      <div class="ledger-item"><span class="ledger-num">8</span><span class="ledger-label">Courses developed</span></div>
+    </div>
+
+    <div class="section">
+      <h2>Background</h2>
+      <p>M.Sc. in Molecular Biology, teaching certification in Secondary Science. Before the classroom, three years in a university genetics lab studying inheritance patterns in plant populations — that research habit still shapes how the courses are run.</p>
+    </div>
+
+    <div class="section">
+      <h2>Teaching focus</h2>
+      <ul class="focus-list">
+        <li>Genetics &amp; heredity <span class="tag">Core / AP</span></li>
+        <li>Ecology &amp; field study <span class="tag">Core</span></li>
+        <li>Microbiology <span class="tag">Elective</span></li>
+        <li>AP Biology exam prep <span class="tag">Senior year</span></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Recognition</h2>
+      <ul class="achieve">
+        <li><span class="yr">2025</span> Department Excellence Award, Science Faculty</li>
+        <li><span class="yr">2023</span> Curriculum grant for field-based ecology unit</li>
+        <li><span class="yr">2020</span> Redesigned AP Biology track — pass rate rose from 78% to 94%</li>
+      </ul>
+    </div>
+
+    <div class="footer-row">
+      <div>Get in touch: elena.marsh@school.edu</div>
+      <button class="staff-link" data-action="open-gate">Staff</button>
+    </div>
+  </div>`;
+}
+
+/* ===================== PASSCODE GATE ===================== */
+function renderGate(){
+  return `
+  <div class="gate">
+    <div class="gate-box">
+      <h2>Staff access</h2>
+      <p>Enter the passcode to open the student dashboard.</p>
+      <input type="password" id="passcode-input" placeholder="Passcode" autofocus />
+      <div class="gate-error" id="gate-error"></div>
+      <div class="gate-actions">
+        <button class="btn btn-primary" data-action="submit-passcode">Enter</button>
+        <button class="btn btn-ghost" data-action="cancel-gate">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===================== DASHBOARD ===================== */
+function renderDashboard(){
+  const filtered = students.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const rosterHTML = filtered.length ? filtered.map(s=>{
+    const rec = dataCache[s.id];
+    const rate = rec ? attendanceRate(rec) : null;
+    const rateHTML = rate===null ? "" : `<span class="rate-badge ${rate<80?'low':''}">${rate}%</span>`;
+    return `<button class="roster-row ${s.id===activeStudentId?'active':''}" data-action="select-student" data-id="${s.id}">
+      <span class="avatar" style="background:${colorFor(s.name)}">${initials(s.name)}</span>
+      <span class="roster-name">${escapeHTML(s.name)}</span>
+      ${rateHTML}
+    </button>`;
+  }).join("") : `<div class="empty-row">No students found.</div>`;
+
+  return `
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <h2>Roster</h2>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          <button class="exit-link" data-action="exit-dashboard">View public site</button>
+          <button class="exit-link" data-action="log-out">Log out</button>
+        </div>
+      </div>
+      <input class="search-input" id="search-input" placeholder="Search students…" value="${escapeHTML(search)}" />
+      <button class="add-student-btn" data-action="add-student">+ Add student</button>
+      <div class="roster-list">${rosterHTML}</div>
+      <div class="sidebar-count">${students.length} student${students.length===1?'':'s'} total</div>
+    </div>
+    <div class="main">
+      ${activeStudentId ? renderStudentPanel() : renderOverview()}
+    </div>
+  </div>`;
+}
+
+function renderOverview(){
+  const total = students.length;
+  const rates = students.map(s=>dataCache[s.id]?attendanceRate(dataCache[s.id]):null).filter(r=>r!==null);
+  const avgRate = rates.length ? Math.round(rates.reduce((a,b)=>a+b,0)/rates.length) : "—";
+  let pendingPayments = 0;
+  students.forEach(s=>{
+    const rec = dataCache[s.id];
+    if(rec) pendingPayments += rec.payments.filter(p=>p.status!=="paid").length;
+  });
+  return `
+  <div class="main-empty">
+    <h2>Select a student, or add a new one</h2>
+    <p>Attendance, assignments, exams, and payments all live on each student's profile.</p>
+  </div>
+  <div class="overview-grid">
+    <div class="stat-card"><div class="num">${total}</div><div class="lbl">Students on roster</div></div>
+    <div class="stat-card"><div class="num">${avgRate}${rates.length?'%':''}</div><div class="lbl">Average attendance</div></div>
+    <div class="stat-card"><div class="num">${pendingPayments}</div><div class="lbl">Payments pending</div></div>
+  </div>`;
+}
+
+function renderStudentPanel(){
+  const s = students.find(x=>x.id===activeStudentId);
+  if(!s) return renderOverview();
+  ensureStudentData(s.id);
+  const rec = dataCache[s.id] || emptyRecord();
+  const rate = attendanceRate(rec);
+
+  const tabs = ["overview","attendance","assignments","exams","payments"];
+  const tabLabels = {overview:"Overview",attendance:"Attendance",assignments:"Assignments",exams:"Exams",payments:"Payments"};
+
+  return `
+  <div class="student-header">
+    <span class="avatar" style="width:44px;height:44px;font-size:1rem;background:${colorFor(s.name)}">${initials(s.name)}</span>
+    <div>
+      <h1>${escapeHTML(s.name)}</h1>
+    </div>
+    <button class="delete-student" data-action="delete-student" data-id="${s.id}">Remove student</button>
+  </div>
+  <div class="student-sub">${escapeHTML(s.level||"—")} ${s.contact?" · Guardian contact: "+escapeHTML(s.contact):""}</div>
+
+  <div class="tabs">
+    ${tabs.map(t=>`<button class="tab-btn ${activeTab===t?'active':''}" data-action="set-tab" data-tab="${t}">${tabLabels[t]}</button>`).join("")}
+  </div>
+
+  ${activeTab==="overview" ? renderOverviewTab(s, rec, rate) : ""}
+  ${activeTab==="attendance" ? renderAttendanceTab(s, rec, rate) : ""}
+  ${activeTab==="assignments" ? renderAssignmentsTab(s, rec) : ""}
+  ${activeTab==="exams" ? renderExamsTab(s, rec) : ""}
+  ${activeTab==="payments" ? renderPaymentsTab(s, rec) : ""}
+  `;
+}
+
+function renderOverviewTab(s, rec, rate){
+  const gradedAssignments = rec.assignments.filter(a=>a.grade!=="" && a.grade!=null);
+  const avgAssignment = gradedAssignments.length ? Math.round(gradedAssignments.reduce((a,b)=>a+ (parseFloat(b.grade)/parseFloat(b.maxGrade||100))*100,0)/gradedAssignments.length) : null;
+  const examsAvg = rec.exams.length ? Math.round(rec.exams.reduce((a,b)=>a+(parseFloat(b.score)/parseFloat(b.max||100))*100,0)/rec.exams.length) : null;
+  const pendingPay = rec.payments.filter(p=>p.status!=="paid").length;
+
+  return `
+  <div class="overview-grid">
+    <div class="stat-card"><div class="num">${rate===null?"—":rate+"%"}</div><div class="lbl">Attendance rate</div></div>
+    <div class="stat-card"><div class="num">${avgAssignment===null?"—":avgAssignment+"%"}</div><div class="lbl">Assignment average</div></div>
+    <div class="stat-card"><div class="num">${examsAvg===null?"—":examsAvg+"%"}</div><div class="lbl">Exam average</div></div>
+  </div>
+  <div class="card" style="margin-top:18px;">
+    <h3>Profile details</h3>
+    <div class="field-grid">
+      <div class="f"><label>Full name</label><input id="edit-name" value="${escapeHTML(s.name)}" /></div>
+      <div class="f"><label>Grade / level</label><input id="edit-level" value="${escapeHTML(s.level||"")}" /></div>
+      <div class="f"><label>Guardian contact</label><input id="edit-contact" value="${escapeHTML(s.contact||"")}" /></div>
+      <div class="f"><label>Next payment due</label><input id="edit-due" value="${escapeHTML(rec.nextDue||"")}" placeholder="e.g. Oct 1, 2026" /></div>
+    </div>
+    <div class="inline-form" style="border-top:none;padding-top:16px;">
+      <button class="btn btn-primary" data-action="save-profile" data-id="${s.id}">Save changes</button>
+      <span class="save-note" id="save-note"></span>
+    </div>
+  </div>
+  ${pendingPay>0?`<div class="card"><h3>Heads up</h3><p style="margin:0;color:#7C3A22;">${pendingPay} payment${pendingPay===1?"":"s"} still pending.</p></div>`:""}
+  `;
+}
+
+function renderAttendanceTab(s, rec, rate){
+  const rows = rec.attendance.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  return `
+  <div class="card">
+    <h3>Attendance log ${rate!==null?`— ${rate}% rate`:""}</h3>
+    <table>
+      <thead><tr><th>Date</th><th>Status</th><th>Note</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length? rows.map(a=>`
+          <tr>
+            <td>${escapeHTML(a.date)}</td>
+            <td><span class="status-pill status-${a.status}">${labelStatus(a.status)}</span></td>
+            <td>${escapeHTML(a.note||"—")}</td>
+            <td class="row-actions"><button data-action="delete-attendance" data-id="${s.id}" data-record="${a.id}">Remove</button></td>
+          </tr>`).join("") : `<tr><td colspan="4" class="empty-row">No attendance recorded yet.</td></tr>`}
+      </tbody>
+    </table>
+    <div class="inline-form">
+      <div class="f"><label>Date</label><input type="date" id="att-date"></div>
+      <div class="f"><label>Status</label>
+        <select id="att-status">
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="excused">Excused absent</option>
+          <option value="late">Late</option>
+        </select>
+      </div>
+      <div class="f" style="flex:2;"><label>Note (optional)</label><input id="att-note" placeholder="e.g. doctor's note"></div>
+      <button class="btn btn-primary" data-action="add-attendance" data-id="${s.id}">Add</button>
+    </div>
+  </div>`;
+}
+
+function renderAssignmentsTab(s, rec){
+  const rows = rec.assignments.slice().sort((a,b)=>(b.due||"").localeCompare(a.due||""));
+  return `
+  <div class="card">
+    <h3>Assignments</h3>
+    <table>
+      <thead><tr><th>Title</th><th>Due</th><th>Submitted</th><th>Grade</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length? rows.map(a=>`
+          <tr>
+            <td>${escapeHTML(a.title)}</td>
+            <td>${escapeHTML(a.due||"—")}</td>
+            <td>${escapeHTML(a.submitted||"—")}</td>
+            <td>${a.grade!==""&&a.grade!=null?`${a.grade}/${a.maxGrade||100}`:"—"}</td>
+            <td><span class="status-pill status-${a.status==='late'?'late':a.status==='graded'?'present':'excused'}">${labelAssignStatus(a.status)}</span></td>
+            <td class="row-actions"><button data-action="delete-assignment" data-id="${s.id}" data-record="${a.id}">Remove</button></td>
+          </tr>`).join("") : `<tr><td colspan="6" class="empty-row">No assignments yet.</td></tr>`}
+      </tbody>
+    </table>
+    <div class="inline-form">
+      <div class="f" style="flex:2;"><label>Title</label><input id="asg-title" placeholder="e.g. Cell Cycle Lab Report"></div>
+      <div class="f"><label>Due date</label><input type="date" id="asg-due"></div>
+      <div class="f"><label>Submitted date</label><input type="date" id="asg-submitted"></div>
+      <div class="f"><label>Grade</label><input type="number" id="asg-grade" placeholder="e.g. 88"></div>
+      <div class="f"><label>Max grade</label><input type="number" id="asg-max" placeholder="100"></div>
+      <div class="f"><label>Status</label>
+        <select id="asg-status">
+          <option value="pending">Pending</option>
+          <option value="graded">Graded</option>
+          <option value="late">Late</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" data-action="add-assignment" data-id="${s.id}">Add</button>
+    </div>
+  </div>`;
+}
+
+function renderExamsTab(s, rec){
+  const rows = rec.exams.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  return `
+  <div class="card">
+    <h3>Exams</h3>
+    <table>
+      <thead><tr><th>Exam</th><th>Date</th><th>Score</th><th>Class avg</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length? rows.map(e=>`
+          <tr>
+            <td>${escapeHTML(e.name)}</td>
+            <td>${escapeHTML(e.date||"—")}</td>
+            <td>${e.score}/${e.max||100}</td>
+            <td>${e.classAvg!==""&&e.classAvg!=null?e.classAvg+"/"+(e.max||100):"—"}</td>
+            <td class="row-actions"><button data-action="delete-exam" data-id="${s.id}" data-record="${e.id}">Remove</button></td>
+          </tr>`).join("") : `<tr><td colspan="5" class="empty-row">No exams recorded yet.</td></tr>`}
+      </tbody>
+    </table>
+    <div class="inline-form">
+      <div class="f" style="flex:2;"><label>Exam name</label><input id="exam-name" placeholder="e.g. Midterm — Genetics"></div>
+      <div class="f"><label>Date</label><input type="date" id="exam-date"></div>
+      <div class="f"><label>Score</label><input type="number" id="exam-score" placeholder="e.g. 74"></div>
+      <div class="f"><label>Out of</label><input type="number" id="exam-max" placeholder="100"></div>
+      <div class="f"><label>Class average</label><input type="number" id="exam-avg" placeholder="optional"></div>
+      <button class="btn btn-primary" data-action="add-exam" data-id="${s.id}">Add</button>
+    </div>
+  </div>`;
+}
+
+function renderPaymentsTab(s, rec){
+  const rows = rec.payments.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  return `
+  <div class="card">
+    <h3>Payments ${rec.nextDue?`— next due ${escapeHTML(rec.nextDue)}`:""}</h3>
+    <table>
+      <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        ${rows.length? rows.map(p=>`
+          <tr>
+            <td>${escapeHTML(p.date)}</td>
+            <td>${escapeHTML(p.amount)}</td>
+            <td>${escapeHTML(p.method||"—")}</td>
+            <td><span class="status-pill status-${p.status}">${labelStatus(p.status)}</span></td>
+            <td class="row-actions"><button data-action="delete-payment" data-id="${s.id}" data-record="${p.id}">Remove</button></td>
+          </tr>`).join("") : `<tr><td colspan="5" class="empty-row">No payments recorded yet.</td></tr>`}
+      </tbody>
+    </table>
+    <div class="inline-form">
+      <div class="f"><label>Date</label><input type="date" id="pay-date"></div>
+      <div class="f"><label>Amount</label><input id="pay-amount" placeholder="e.g. $150"></div>
+      <div class="f"><label>Method</label><input id="pay-method" placeholder="e.g. Bank transfer"></div>
+      <div class="f"><label>Status</label>
+        <select id="pay-status">
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="overdue">Overdue</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" data-action="add-payment" data-id="${s.id}">Add</button>
+    </div>
+  </div>`;
+}
+
+/* ===================== LABELS / UTIL ===================== */
+function labelStatus(st){
+  return {present:"Present",absent:"Absent",excused:"Excused",late:"Late",paid:"Paid",pending:"Pending",overdue:"Overdue"}[st] || st;
+}
+function labelAssignStatus(st){
+  return {pending:"Pending",graded:"Graded",late:"Late"}[st] || st;
+}
+function escapeHTML(str){
+  return String(str??"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ===================== EVENTS ===================== */
+function bindEvents(){
+  document.querySelectorAll("[data-action]").forEach(el=>{
+    el.addEventListener("click", onAction);
+  });
+  const searchInput = document.getElementById("search-input");
+  if(searchInput){
+    searchInput.addEventListener("input", e=>{ search = e.target.value; render(); preserveFocus("search-input"); });
+  }
+  const pass = document.getElementById("passcode-input");
+  if(pass){
+    pass.addEventListener("keydown", e=>{ if(e.key==="Enter") submitPasscode(); });
+  }
+}
+function preserveFocus(id){
+  const el = document.getElementById(id);
+  if(el){ el.focus(); const v=el.value; el.value=""; el.value=v; }
+}
+
+async function onAction(e){
+  const action = e.currentTarget.dataset.action;
+  const id = e.currentTarget.dataset.id;
+  const recordId = e.currentTarget.dataset.record;
+
+  if(action==="open-gate"){ view="gate"; render(); }
+  else if(action==="cancel-gate"){ view="public"; render(); }
+  else if(action==="submit-passcode"){ submitPasscode(); }
+  else if(action==="exit-dashboard"){ view="public"; activeStudentId=null; render(); }
+  else if(action==="log-out"){ logOut(); }
+  else if(action==="select-student"){ activeStudentId=id; activeTab="overview"; await ensureStudentData(id); render(); }
+  else if(action==="set-tab"){ activeTab = e.currentTarget.dataset.tab; render(); }
+  else if(action==="add-student"){ await addStudent(); }
+  else if(action==="delete-student"){ await deleteStudent(id); }
+  else if(action==="save-profile"){ await saveProfile(id); }
+  else if(action==="add-attendance"){ await addAttendance(id); }
+  else if(action==="delete-attendance"){ await deleteRecord(id,"attendance",recordId); }
+  else if(action==="add-assignment"){ await addAssignment(id); }
+  else if(action==="delete-assignment"){ await deleteRecord(id,"assignments",recordId); }
+  else if(action==="add-exam"){ await addExam(id); }
+  else if(action==="delete-exam"){ await deleteRecord(id,"exams",recordId); }
+  else if(action==="add-payment"){ await addPayment(id); }
+  else if(action==="delete-payment"){ await deleteRecord(id,"payments",recordId); }
+}
+
+function submitPasscode(){
+  const val = document.getElementById("passcode-input").value;
+  if(val === DASH_PASSCODE){
+    unlocked = true;
+    localStorage.setItem("dash_unlocked", "true");
+    view = "dashboard"; render();
+  }else{
+    document.getElementById("gate-error").textContent = "That passcode isn't right — try again.";
+  }
+}
+
+function logOut(){
+  unlocked = false;
+  localStorage.removeItem("dash_unlocked");
+  view = "gate"; activeStudentId = null; render();
+}
+
+async function addStudent(){
+  const name = prompt("Student's full name:");
+  if(!name || !name.trim()) return;
+  const s = { id: uid(), name: name.trim(), level:"", contact:"" };
+  students.push(s);
+  dataCache[s.id] = emptyRecord();
+  await saveJSON("roster", students);
+  await persistStudentData(s.id);
+  activeStudentId = s.id; activeTab="overview";
+  render();
+}
+
+async function deleteStudent(id){
+  if(!confirm("Remove this student and all their records? This can't be undone.")) return;
+  students = students.filter(s=>s.id!==id);
+  delete dataCache[id];
+  await saveJSON("roster", students);
+  await deleteKey("student-data:"+id);
+  if(activeStudentId===id) activeStudentId=null;
+  render();
+}
+
+async function saveProfile(id){
+  const s = students.find(x=>x.id===id);
+  s.name = document.getElementById("edit-name").value.trim() || s.name;
+  s.level = document.getElementById("edit-level").value.trim();
+  s.contact = document.getElementById("edit-contact").value.trim();
+  dataCache[id].nextDue = document.getElementById("edit-due").value.trim();
+  await saveJSON("roster", students);
+  await persistStudentData(id);
+  const note = document.getElementById("save-note");
+  if(note){ note.textContent = "Saved."; setTimeout(()=>{ if(note) note.textContent=""; },1800); }
+  render();
+}
+
+async function addAttendance(id){
+  const date = document.getElementById("att-date").value;
+  if(!date){ alert("Pick a date first."); return; }
+  const status = document.getElementById("att-status").value;
+  const note = document.getElementById("att-note").value.trim();
+  dataCache[id].attendance.push({id:uid(), date, status, note});
+  await persistStudentData(id);
+  render();
+}
+
+async function addAssignment(id){
+  const title = document.getElementById("asg-title").value.trim();
+  if(!title){ alert("Give the assignment a title."); return; }
+  const due = document.getElementById("asg-due").value;
+  const submitted = document.getElementById("asg-submitted").value;
+  const grade = document.getElementById("asg-grade").value;
+  const maxGrade = document.getElementById("asg-max").value || "100";
+  const status = document.getElementById("asg-status").value;
+  dataCache[id].assignments.push({id:uid(), title, due, submitted, grade, maxGrade, status});
+  await persistStudentData(id);
+  render();
+}
+
+async function addExam(id){
+  const name = document.getElementById("exam-name").value.trim();
+  const score = document.getElementById("exam-score").value;
+  if(!name || score===""){ alert("Exam name and score are required."); return; }
+  const date = document.getElementById("exam-date").value;
+  const max = document.getElementById("exam-max").value || "100";
+  const classAvg = document.getElementById("exam-avg").value;
+  dataCache[id].exams.push({id:uid(), name, date, score, max, classAvg});
+  await persistStudentData(id);
+  render();
+}
+
+async function addPayment(id){
+  const date = document.getElementById("pay-date").value;
+  const amount = document.getElementById("pay-amount").value.trim();
+  if(!date || !amount){ alert("Date and amount are required."); return; }
+  const method = document.getElementById("pay-method").value.trim();
+  const status = document.getElementById("pay-status").value;
+  dataCache[id].payments.push({id:uid(), date, amount, method, status});
+  await persistStudentData(id);
+  render();
+}
+
+async function deleteRecord(id, key, recordId){
+  dataCache[id][key] = dataCache[id][key].filter(r=>r.id!==recordId);
+  await persistStudentData(id);
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
